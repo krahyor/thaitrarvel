@@ -53,32 +53,3 @@ class DBRegisteredProvinceTax(SQLModel, table=True):
             "foreign_keys": "[DBRegisteredProvinceTax.secondary_province_id]"
         },
     )
-
-
-# Pydantic models สำหรับ request/response
-class BaseProvinceTax(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    province: ProvinceEnum
-    tax: float
-
-
-class ProvinceTax(BaseProvinceTax):
-    id: int
-
-
-class RegisteredProvinceTax(BaseModel):
-    id: int
-    user_id: int
-    name: str
-    email: EmailStr
-    main_province_id: int
-    main_province_tax: float
-    secondary_province_id: Optional[int] = None
-    secondary_province_tax: Optional[float] = None
-
-
-class RegisterProvinceTaxRequest(BaseModel):
-    name: str
-    email: EmailStr
-    main_province_id: int
-    secondary_province_id: Optional[int] = None

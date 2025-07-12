@@ -4,17 +4,17 @@ from sqlmodel import select
 from typing import Annotated, List
 
 from thaitravel.core import deps
-from thaitravel import models
+from thaitravel import models, schemas
 
 router = APIRouter(prefix="/province_tax", tags=["province_tax"])
 
 
 # CREATE BaseProvinceTax
 @router.post(
-    "/base", response_model=models.BaseProvinceTax, status_code=status.HTTP_201_CREATED
+    "/base", response_model=schemas.BaseProvinceTax, status_code=status.HTTP_201_CREATED
 )
 async def create_base_province_tax(
-    data: models.BaseProvinceTax,
+    data: schemas.BaseProvinceTax,
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.User = Depends(deps.get_current_user),
 ):
@@ -29,27 +29,27 @@ async def create_base_province_tax(
     session.add(db_item)
     await session.commit()
     await session.refresh(db_item)
-    return models.BaseProvinceTax.from_orm(db_item)
+    return schemas.BaseProvinceTax.from_orm(db_item)
 
 
 # READ BaseProvinceTax
-@router.get("/base", response_model=List[models.ProvinceTax])
+@router.get("/base", response_model=List[schemas.ProvinceTax])
 async def get_base_province_tax(
     session: Annotated[AsyncSession, Depends(models.get_session)],
 ):
     result = await session.exec(select(models.DBBaseProvinceTax))
     db_items = result.all()
-    return [models.ProvinceTax.model_validate(item) for item in db_items]
+    return [schemas.ProvinceTax.model_validate(item) for item in db_items]
 
 
 # CREATE RegisteredProvinceTax
 @router.post(
     "/register",
-    response_model=models.RegisteredProvinceTax,
+    response_model=schemas.RegisteredProvinceTax,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_province_tax(
-    data: models.RegisterProvinceTaxRequest,
+    data: schemas.RegisterProvinceTaxRequest,
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.User = Depends(deps.get_current_user),
 ):
@@ -100,11 +100,11 @@ async def register_province_tax(
     session.add(reg)
     await session.commit()
     await session.refresh(reg)
-    return models.RegisteredProvinceTax.model_validate(reg, from_attributes=True)
+    return schemas.RegisteredProvinceTax.model_validate(reg, from_attributes=True)
 
 
 # READ RegisteredProvinceTax (เฉพาะของ user)
-@router.get("/registered", response_model=List[models.RegisteredProvinceTax])
+@router.get("/registered", response_model=List[schemas.RegisteredProvinceTax])
 async def get_registered_province_tax(
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.User = Depends(deps.get_current_user),
@@ -116,6 +116,6 @@ async def get_registered_province_tax(
     )
     db_items = result.all()
     return [
-        models.RegisteredProvinceTax.model_validate(item, from_attributes=True)
+        schemas.RegisteredProvinceTax.model_validate(item, from_attributes=True)
         for item in db_items
     ]
