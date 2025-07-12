@@ -46,7 +46,6 @@ async def get_current_user(
     except JWTError as e:
         print(f"JWT Decode Error: {e}")
         raise credentials_exception
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     user = await session.get(models.DBUser, user_id)
     if user is None:
         raise credentials_exception
