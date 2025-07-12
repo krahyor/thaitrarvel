@@ -47,11 +47,7 @@ async def test_user_crud_flow(client, user_data):
 
 @pytest.mark.asyncio
 async def test_user_token_and_auth_flow(client, user_data):
-    # Create user
-    create_response = await client.post("/v1/users/create", json=user_data)
-    user_id = create_response.json()
 
-    # Get token
     form_data = {
         "grant_type": "password",
         "username": user_data["username"],
@@ -71,7 +67,6 @@ async def test_user_token_and_auth_flow(client, user_data):
     tokens = token_response.json()
     access_token = tokens["access_token"]
 
-    # Use access_token to call a protected route
     headers = {"Authorization": f"Bearer {access_token}"}
     me_response = await client.get("/v1/users/me", headers=headers)
 

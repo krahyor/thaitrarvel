@@ -100,7 +100,7 @@ async def register_province_tax(
     session.add(reg)
     await session.commit()
     await session.refresh(reg)
-    return models.RegisteredProvinceTax.model_validate(reg)
+    return models.RegisteredProvinceTax.model_validate(reg, from_attributes=True)
 
 
 # READ RegisteredProvinceTax (เฉพาะของ user)
@@ -115,68 +115,7 @@ async def get_registered_province_tax(
         )
     )
     db_items = result.all()
-    return [models.RegisteredProvinceTax.model_validate(item) for item in db_items]
-
-
-# UPDATE RegisteredProvinceTax
-@router.put("/registered/{reg_id}", response_model=models.RegisteredProvinceTax)
-async def update_registered_province_tax(
-    reg_id: int,
-    data: models.RegisterProvinceTaxRequest,
-    session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.User = Depends(deps.get_current_user),
-):
-    reg = await session.get(models.DBRegisteredProvinceTax, reg_id)
-    if not reg or reg.user_id != current_user.id:
-        raise HTTPException(status_code=404, detail="Registration not found.")
-
-    # อัปเดตข้อมูล
-    reg.name = data.name
-    reg.email = data.email
-
-    # อัปเดต main province
-    main_tax_result = await session.exec(
-        select(models.DBBaseProvinceTax).where(
-            models.DBBaseProvinceTax.id == data.main_province_id
-        )
-    )
-    main_tax_obj = main_tax_result.first()
-    if not main_tax_obj:
-        raise HTTPException(status_code=404, detail="Main province not found.")
-    reg.main_province_id = data.main_province_id
-    reg.main_province_tax = main_tax_obj.tax
-
-    # อัปเดต secondary province
-    if data.secondary_province_id:
-        sec_tax_result = await session.exec(
-            select(models.DBBaseProvinceTax).where(
-                models.DBBaseProvinceTax.id == data.secondary_province_id
-            )
-        )
-        sec_tax_obj = sec_tax_result.first()
-        if not sec_tax_obj:
-            raise HTTPException(status_code=404, detail="Secondary province not found.")
-        reg.secondary_province_id = data.secondary_province_id
-        reg.secondary_province_tax = sec_tax_obj.tax
-    else:
-        reg.secondary_province_id = None
-        reg.secondary_province_tax = None
-
-    session.add(reg)
-    await session.commit()
-    await session.refresh(reg)
-    return models.RegisteredProvinceTax.model_validate(reg)
-
-
-# DELETE RegisteredProvinceTax
-@router.delete("/registered/{reg_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_registered_province_tax(
-    reg_id: int,
-    session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.User = Depends(deps.get_current_user),
-):
-    reg = await session.get(models.DBRegisteredProvinceTax, reg_id)
-    if not reg or reg.user_id != current_user.id:
-        raise HTTPException(status_code=404, detail="Registration not found.")
-    await session.delete(reg)
-    await session.commit()
+    return [
+        models.RegisteredProvinceTax.model_validate(item, from_attributes=True)
+        for item in db_items
+    ]
