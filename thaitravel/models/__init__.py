@@ -6,6 +6,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy.orm import sessionmaker
 
+from .user_model import *
+from .province_tax_model import *
 
 connect_args = {"check_same_thread": False}
 
@@ -29,7 +31,7 @@ async def init_db():
 async def create_db_and_tables():
     """Create database tables."""
     async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
+        # await conn.run_sync(SQLModel.metadata.drop_all)
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
