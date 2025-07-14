@@ -21,8 +21,8 @@ settings = config.get_settings()
 @pytest.fixture
 def user_data():
     return {
-        "email": "admin@email.local",
-        "username": "admin",
+        "email": "admin1@email.local",
+        "username": "admin1",
         "first_name": "Firstname",
         "last_name": "Lastname",
         "province": "Bangkok",
